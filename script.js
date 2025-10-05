@@ -4,19 +4,58 @@ let isRecording = false;
 let currentFiles = { html: '', css: '', js: '' };
 let currentTab = 'html';
 
-function saveApiKey() {
+async function saveApiKey() {
     const input = document.getElementById('apiKeyInput');
-    apiKey = input.value.trim();
+    const saveBtn = document.querySelector('#apiKeySection .btn-primary');
+    const tempKey = input.value.trim();
     
-    if (!apiKey) {
+    if (!tempKey) {
         alert('Please enter your API key');
         return;
     }
     
-    document.getElementById('apiKeySection').classList.add('hidden');
-    document.getElementById('mainInterface').classList.remove('hidden');
+    // Show loading state
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Validating...';
     
-    initSpeechRecognition();
+    // Test the API key
+    const isValid = await validateApiKey(tempKey);
+    
+    if (isValid) {
+        apiKey = tempKey;
+        document.getElementById('apiKeySection').classList.add('hidden');
+        document.getElementById('mainInterface').classList.remove('hidden');
+        initSpeechRecognition();
+    } else {
+        alert('Invalid API key. Please check and try again.\n\nMake sure you copied the complete key from cloud.cerebras.ai');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Key';
+    }
+}
+
+async function validateApiKey(key) {
+    try {
+        const response = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + key
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b',
+                messages: [{
+                    role: 'user',
+                    content: 'Hello'
+                }],
+                max_tokens: 10
+            })
+        });
+        
+        return response.ok;
+    } catch (error) {
+        console.error('API validation error:', error);
+        return false;
+    }
 }
 
 function initSpeechRecognition() {
@@ -113,8 +152,15 @@ async function generateApp(description) {
         
     } catch (error) {
         console.error('Error:', error);
-        alert('Error generating app: ' + error.message);
         document.getElementById('loadingState').classList.add('hidden');
+        
+        let errorMessage = 'Error generating app: ' + error.message;
+        
+        if (error.message.includes('API error')) {
+            errorMessage += '\n\nYour API key might have expired or run out of credits.\nPlease check your Cerebras account.';
+        }
+        
+        alert(errorMessage);
     }
 }
 
