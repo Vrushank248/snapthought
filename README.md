@@ -2,11 +2,16 @@
 
 **Speak Your App Into Existence**
 
+[![Live Demo](https://img.shields.io/badge/Live-Demo-success?style=for-the-badge&logo=vercel)](https://snapthought.vercel.app/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repo-blue?style=for-the-badge&logo=github)](https://github.com/Vrushank248/snapthought)
+
+🌐 **Live Demo**: https://snapthought.vercel.app/
+
 SnapThought is an AI-powered voice-to-app builder that transforms your spoken ideas into working web applications in seconds. Simply describe what you want, and watch as AI generates a complete, functional prototype instantly.
 
 ## 🎥 Demo Video
 
-[Watch the 2-minute demo](YOUR_VIDEO_LINK_HERE)
+[Watch the 2-minute demo](https://drive.google.com/file/d/1G7T7d3V5abeeJwqxMu5zUeM4N6rWGjog/view?usp=drive_link)
 
 ## 🌟 The Problem
 
@@ -187,14 +192,14 @@ MIT License - feel free to use this project for learning and inspiration!
 - **Docker** - For containerization technology
 - **FutureStack Hackathon** - For the opportunity and inspiration
 
-## 👤 Riddhi Vyas and Vrushank Vyas
+## 👤 Author
 
 Created with ❤️ for the FutureStack GenAI Hackathon
 
-**Contact**: (https://github.com/Vrushank248)
+**Contact**: [Your Email/GitHub]
 
 ---
 
-**Powered by Voice + AI + Docker**
+**Built in 1 hour | Powered by Voice + AI + Docker**
 
 *"The best way to predict the future is to build it... by speaking it!"*
