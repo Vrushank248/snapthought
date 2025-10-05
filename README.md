@@ -40,11 +40,13 @@ SnapThought bridges the gap between imagination and creation. Using cutting-edge
 - Generates beautiful, modern UI with Tailwind CSS
 - Adapts to user's style preferences and requirements
 
-#### 🐳 Docker
-- Isolated preview environments for generated apps
-- Safe code execution in sandboxed containers
-- Multi-service architecture with docker-compose
-- Easy deployment and scaling
+#### 🐳 Docker MCP Gateway
+- **Isolated Preview Environments**: Each generated app runs in its own containerized sandbox, preventing malicious code from affecting the host system
+- **MCP Gateway Integration**: Leverages Docker's Model Context Protocol for secure AI-generated code execution
+- **Multi-Service Architecture**: Main app and preview environments run in separate containers with docker-compose orchestration
+- **Zero-Trust Execution**: Generated code never touches the host machine directly - all execution happens in ephemeral Docker containers
+- **Scalability**: Can spawn multiple isolated environments simultaneously for testing different app variations
+- **Production-Ready Deployment**: Container-based architecture makes deployment to any cloud platform seamless
 
 ### Additional Technologies
 - **Web Speech API** - Browser-native voice recognition
@@ -185,11 +187,11 @@ MIT License - feel free to use this project for learning and inspiration!
 - **Docker** - For containerization technology
 - **FutureStack Hackathon** - For the opportunity and inspiration
 
-## 👤 Author
+## 👤 Riddhi Vyas and Vrushank Vyas
 
 Created with ❤️ for the FutureStack GenAI Hackathon
 
-**Contact**: https://github.com/Vrushank248
+**Contact**: (https://github.com/Vrushank248)
 
 ---
 
