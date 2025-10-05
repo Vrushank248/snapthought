@@ -189,10 +189,10 @@ MIT License - feel free to use this project for learning and inspiration!
 
 Created with ❤️ for the FutureStack GenAI Hackathon
 
-**Contact**: [Your Email/GitHub]
+**Contact**: https://github.com/Vrushank248
 
 ---
 
-**Built in 1 hour | Powered by Voice + AI + Docker**
+**Powered by Voice + AI + Docker**
 
 *"The best way to predict the future is to build it... by speaking it!"*
