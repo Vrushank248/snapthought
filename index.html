@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapThought - Voice to App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .pulse-ring {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .recording {
+            animation: recording-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes recording-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-300">
+                SnapThought ✨
+            </h1>
+            <p class="text-xl text-gray-300">Speak Your App Into Existence</p>
+        </header>
+
+        <div class="max-w-4xl mx-auto">
+            <!-- API Key Input Section -->
+            <div id="apiKeySection" class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
+                <h2 class="text-2xl font-semibold mb-4">🔑 Setup Your API Key</h2>
+                <div class="flex gap-3">
+                    <input 
+                        type="password" 
+                        id="apiKeyInput" 
+                        placeholder="Paste your Cerebras API key here..."
+                        class="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/30 focus:border-purple-400 focus:outline-none"
+                    >
+                    <button 
+                        onclick="saveApiKey()" 
+                        class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition"
+                    >
+                        Save Key
+                    </button>
+                </div>
+                <p class="text-sm text-gray-400 mt-2">Get your key from <a href="https://cloud.cerebras.ai" target="_blank" class="text-purple-400 hover:underline">cloud.cerebras.ai</a></p>
+            </div>
+
+            <!-- Main Interface -->
+            <div id="mainInterface" class="hidden">
+                <!-- Voice Input Section -->
+                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 mb-6 border border-white/20">
+                    <div class="text-center mb-6">
+                        <button 
+                            id="recordBtn" 
+                            onclick="toggleRecording()"
+                            class="w-32 h-32 rounded-full bg-gradient-to-br from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 transition-all shadow-2xl mx-auto flex items-center justify-center"
+                        >
+                            <svg id="micIcon" class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                            </svg>
+                        </button>
+                        <p class="mt-4 text-lg" id="recordStatus">Click to start recording</p>
+                    </div>
+
+                    <!-- Transcript Display -->
+                    <div id="transcriptBox" class="bg-black/30 rounded-lg p-4 min-h-24 mb-4 hidden">
+                        <p class="text-sm text-gray-400 mb-2">You said:</p>
+                        <p id="transcriptText" class="text-lg"></p>
+                    </div>
+
+                    <!-- Quick Examples -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <button onclick="useExample('I want a simple calculator app with basic operations')" class="bg-white/5 hover:bg-white/10 rounded-lg p-3 text-sm text-left transition">
+                            📱 Calculator App
+                        </button>
+                        <button onclick="useExample('Create a to-do list with dark mode and checkboxes')" class="bg-white/5 hover:bg-white/10 rounded-lg p-3 text-sm text-left transition">
+                            ✅ Todo List
+                        </button>
+                        <button onclick="useExample('Make a simple timer app with start stop and reset buttons')" class="bg-white/5 hover:bg-white/10 rounded-lg p-3 text-sm text-left transition">
+                            ⏱️ Timer App
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center hidden border border-white/20">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-400 mx-auto mb-4"></div>
+                    <p class="text-xl font-semibold">Creating your app...</p>
+                    <p class="text-sm text-gray-400 mt-2" id="loadingStep">Analyzing your idea</p>
+                </div>
+
+                <!-- Result Section -->
+                <div id="resultSection" class="hidden">
+                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-4 border border-white/20">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-semibold">🎉 Your App is Ready!</h2>
+                            <button onclick="copyCode()" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-sm transition">
+                                Copy Code
+                            </button>
+                        </div>
+                        
+                        <!-- Preview Frame -->
+                        <div class="bg-white rounded-lg mb-4" style="height: 400px;">
+                            <iframe id="previewFrame" class="w-full h-full rounded-lg" sandbox="allow-scripts"></iframe>
+                        </div>
+
+                        <!-- Code Display -->
+                        <details class="bg-black/30 rounded-lg p-4">
+                            <summary class="cursor-pointer font-semibold mb-2">View Source Code</summary>
+                            <pre id="codeDisplay" class="text-sm overflow-x-auto bg-black/50 p-4 rounded mt-2"><code></code></pre>
+                        </details>
+
+                        <div class="flex gap-3 mt-4">
+                            <button onclick="startOver()" class="flex-1 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg transition">
+                                Create Another App
+                            </button>
+                            <button onclick="downloadApp()" class="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-lg transition">
+                                Download HTML
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let apiKey = '';
+        let recognition;
+        let isRecording = false;
+
+        function saveApiKey() {
+            const input = document.getElementById('apiKeyInput');
+            apiKey = input.value.trim();
+            
+            if (!apiKey) {
+                alert('Please enter your API key');
+                return;
+            }
+            
+            document.getElementById('apiKeySection').classList.add('hidden');
+            document.getElementById('mainInterface').classList.remove('hidden');
+            
+            // Initialize speech recognition
+            initSpeechRecognition();
+        }
+
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert('Speech recognition not supported in your browser. Please use Chrome or Edge.');
+                return;
+            }
+            
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                displayTranscript(transcript);
+                generateApp(transcript);
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                stopRecording();
+                alert('Error with speech recognition. Please try again.');
+            };
+            
+            recognition.onend = () => {
+                stopRecording();
+            };
+        }
+
+        function toggleRecording() {
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                startRecording();
+            }
+        }
+
+        function startRecording() {
+            isRecording = true;
+            const btn = document.getElementById('recordBtn');
+            const status = document.getElementById('recordStatus');
+            
+            btn.classList.add('recording');
+            status.textContent = '🎤 Listening... Speak now!';
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            const btn = document.getElementById('recordBtn');
+            const status = document.getElementById('recordStatus');
+            
+            btn.classList.remove('recording');
+            status.textContent = 'Click to start recording';
+        }
+
+        function displayTranscript(text) {
+            document.getElementById('transcriptBox').classList.remove('hidden');
+            document.getElementById('transcriptText').textContent = text;
+        }
+
+        function useExample(text) {
+            displayTranscript(text);
+            generateApp(text);
+        }
+
+        async function generateApp(description) {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            
+            try {
+                // Step 1: Structure requirements with Cerebras
+                updateLoadingStep('Analyzing your idea with AI...');
+                
+                const structuredPrompt = await structureWithCerebras(description);
+                
+                // Step 2: Generate code with Llama
+                updateLoadingStep('Generating your app code...');
+                
+                const code = await generateCodeWithLlama(structuredPrompt);
+                
+                // Step 3: Display result
+                updateLoadingStep('Preparing preview...');
+                
+                displayResult(code);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating app: ' + error.message);
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+
+        async function structureWithCerebras(description) {
+            const response = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.3-70b',
+                    messages: [{
+                        role: 'user',
+                        content: `Convert this app idea into structured requirements: "${description}". 
+                        List: 1) Main features 2) UI elements needed 3) Color scheme suggestion 4) Layout structure.
+                        Be concise and specific.`
+                    }],
+                    temperature: 0.7,
+                    max_tokens: 500
+                })
+            });
+            
+            if (!response.ok) throw new Error('Cerebras API error');
+            
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        async function generateCodeWithLlama(requirements) {
+            const response = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.3-70b',
+                    messages: [{
+                        role: 'user',
+                        content: `Create a complete, beautiful, functional single HTML file based on these requirements:
+                        
+${requirements}
+
+CRITICAL RULES:
+- Complete HTML with inline CSS and JavaScript
+- Modern, beautiful design with gradients and animations
+- Fully functional, no placeholders
+- Use Tailwind CDN for styling
+- Include all features mentioned
+- Make it mobile responsive
+- Add smooth transitions and hover effects
+
+Return ONLY the HTML code, nothing else.`
+                    }],
+                    temperature: 0.8,
+                    max_tokens: 3000
+                })
+            });
+            
+            if (!response.ok) throw new Error('Code generation error');
+            
+            const data = await response.json();
+            let code = data.choices[0].message.content;
+            
+            // Clean up code (remove markdown code blocks if present)
+            code = code.replace(/```html\n?/g, '').replace(/```\n?/g, '');
+            
+            return code;
+        }
+
+        function updateLoadingStep(step) {
+            document.getElementById('loadingStep').textContent = step;
+        }
+
+        function displayResult(code) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+            
+            // Display in iframe
+            const iframe = document.getElementById('previewFrame');
+            iframe.srcdoc = code;
+            
+            // Display code
+            document.getElementById('codeDisplay').textContent = code;
+        }
+
+        function copyCode() {
+            const code = document.getElementById('codeDisplay').textContent;
+            navigator.clipboard.writeText(code);
+            alert('Code copied to clipboard!');
+        }
+
+        function downloadApp() {
+            const code = document.getElementById('codeDisplay').textContent;
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'my-app.html';
+            a.click();
+        }
+
+        function startOver() {
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('transcriptBox').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
