@@ -1,0 +1,24 @@
+# API Keys - Never commit these!
+.env
+*.key
+config.json
+
+# Generated apps
+generated-apps/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
