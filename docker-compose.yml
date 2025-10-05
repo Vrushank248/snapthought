@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  snapthought:
+    image: nginx:alpine
+    container_name: snapthought-app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/usr/share/nginx/html
+    restart: unless-stopped
+
+  # Isolated preview environment for generated apps
+  preview-sandbox:
+    image: nginx:alpine
+    container_name: snapthought-preview
+    ports:
+      - "8081:80"
+    volumes:
+      - ./generated-apps:/usr/share/nginx/html
+    restart: unless-stopped
